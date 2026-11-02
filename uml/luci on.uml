@@ -1,0 +1,14 @@
+@startuml
+actor Utente
+participant UARTManager
+participant StateManager
+participant LightManager
+
+Utente -> UARTManager : comando UART: luce_on()
+UARTManager -> StateManager : valida comando
+StateManager --> UARTManager : esito: OK
+UARTManager -> LightManager : attiva luce
+LightManager --> UARTManager : conferma attivazione
+UARTManager -> Utente : risposta UART: luce accesa
+@enduml
+

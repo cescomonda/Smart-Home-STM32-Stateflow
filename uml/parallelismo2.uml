@@ -1,0 +1,95 @@
+@startuml
+title Parallelismo Annidato: Stato Operativo Multifunzione
+
+skinparam state {
+  BackgroundColor #LightBlue
+  BorderColor #336699
+  ArrowColor #336699
+}
+skinparam state<<Operational>> {
+  BackgroundColor #D4E6F1
+  BorderColor #2980B9
+}
+
+[*] --> OFF_STATE
+
+OFF_STATE -right-> Active_State : Accensione
+
+state Active_State {
+  
+  state Config_And_Operations {
+    [*] --> Configuration
+    Configuration --> Operational : Configurazione Completata
+    
+    state "Operational" as Operational <<Operational>> {
+
+      
+      state LightManagement {
+        state "Luci Spente" as LuciOff
+        state "Luci Accese" as LuciOn
+        state "Luci TEMP" as LuciTEMP
+        [*] --> LuciOff
+        LuciOff -[#green]-> LuciOn : comando utente (ON)
+        LuciOn -[#red]-> LuciOff : \n\ncomando utente (OFF)
+        LuciOn -[#blue]-> LuciTEMP : \n\ncomando utente (TEMP)
+        LuciOff -[#blue]-> LuciTEMP : \n\ncomando utente (TEMP)
+        LuciTEMP -[#blue]-> LuciOff : temp_duration
+      }
+
+      ||
+
+      state VBlindsManagement {
+        state "Gestione Veneziane" as Blinds
+        [*] --> Blinds
+      }
+
+      ||
+
+      state NotifyUART {
+        state "In attesa" as UartWait
+        state "Invio Dati..." as UartSending
+        [*] --> UartWait
+        UartWait --> UartSending : timeout
+        UartSending --> UartWait : \n\nnotifica inviata
+      }
+
+      ||
+
+      state HeatingManagement {
+        state "Range 1" as Range_1
+        state "Range 2" as Range_2
+        state "Range 3" as Range_3
+        state "Range 4" as Range_4
+        state "Range 5" as Range_5
+        [*] -[#blue]-> Range_1
+        Range_2 -[#blue]-> Range_1 : temperatura < soglia
+        Range_1 -[#purple]-> Range_2 : \n\ntemperatura >= soglia
+        Range_3 -[#purple]-> Range_2 : temperatura < soglia
+        Range_2 -[#yellow]-> Range_3 : \n\ntemperatura >= soglia
+        Range_4 -[#yellow]-> Range_3 : temperatura < soglia
+        Range_3 -[#orange]-> Range_4 : \n\ntemperatura >= soglia
+        Range_5 -[#orange]-> Range_4 : temperatura < soglia
+        Range_4 -[#red]-> Range_5 : \n\ntemperatura >= soglia
+      }
+
+    } 
+    ' Fine dello stato Operativo
+
+    Operational --> Configuration : Richiesta Riconfigurazione
+  }
+
+  --
+
+  state BlinkingManagement {
+    state "ON" as ON
+    state "OFF" as OFF
+    [*] --> ON
+    ON --> OFF : timeout
+    OFF --> ON : \n\ntimeout
+  }
+}
+
+Active_State -left-> OFF_STATE : Spegnimento
+OFF_STATE --> [*]
+
+@enduml

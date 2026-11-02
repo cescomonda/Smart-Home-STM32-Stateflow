@@ -1,0 +1,19 @@
+# macOS metadata
+.DS_Store
+._*
+
+# Old drafts, generated build artifacts and archives
+old/
+CONSEGNA1/
+DOCUMENTAZIONE CORRETTA/
+image/
+*.zip
+
+# Course assignment (not ours to redistribute)
+Progetto di Sistemi Embedded.pdf
+
+# Simulink build/cache
+*.slxc
+slprj/
+*_ert_rtw/
+*.autosave

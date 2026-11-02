@@ -1,0 +1,47 @@
+@startuml
+' Titolo del diagramma
+title Parallelismo: Logica Operativa e Lampeggio LED
+
+' Stile per migliorare la leggibilità
+skinparam state {
+  BackgroundColor #LightBlue
+  BorderColor #336699
+  ArrowColor #336699
+}
+
+' Lo stato iniziale del sistema globale
+[*] --> OFF_STATE
+
+OFF_STATE -right-> Active_State : Accensione
+
+' Definizione dello stato composito "Attivo" che contiene le regioni parallele
+state Active_State {
+  
+  ' --- Prima regione parallela ---
+  ' Gestisce la logica di configurazione e operativa del sistema.
+  state Config_And_Operations {
+    [*] --> Configuration
+    Configuration --> Operational : \n\nConfigurazione Completata
+    Operational --> Configuration : Richiesta Riconfigurazione
+  }
+
+  ' --- Separatore che definisce le regioni parallele ---
+  ||
+
+  ' --- Seconda regione parallela ---
+  ' Gestisce il lampeggio del LED, che deve essere sempre attivo
+  ' quando il sistema è nello stato "Attivo".
+  state BlinkingManagement {
+    state "ON" as ON
+    state "OFF" as OFF
+    
+    [*] --> ON 
+    ON --> OFF : \n\ntimeout
+    OFF --> ON : timeout
+  }
+}
+
+Active_State -left-> OFF_STATE : Spegnimento 
+OFF_STATE --> [*]
+
+@enduml
